@@ -1,10 +1,18 @@
-function[An,At,Bn,Bt]=Influence_coeff(n_coll,it,xcoll,zcoll,xmain,zmain,theta)
+function[An,At,Bn,Bt]=Influence_coeff(n_coll,n1,it,xcoll,zcoll,xmain,zmain,theta)
 
-An=zeros(n_coll);
+An=zeros(n1,n_coll);
 At=An;
 Bn=An;
 Bt=An;
-for i=1:n_coll
+
+
+switch panel_type
+
+    case 'bound'
+
+
+
+for i=1:n1
         for k=1:n_coll
             if i==k
                 An(i,k)=0.5;
@@ -17,4 +25,22 @@ for i=1:n_coll
         end
         At=-Bn;
         Bt=An;
+end
+        
+     case 'sheet'
+    
+    for i=1:n1
+        for k=1:n_coll
+            
+            [a,b]=sourcefish(xmid,zmid,xmain(k),zmain(it,k),xmain(k+1),zmain(it,k+1),0,theta(it,k));
+            An(i,k)=a;             
+            Bn(i,k)=-b;
+            
+        end
+        At=-Bn;
+        Bt=An;
+    end
+end
+    
+        
 end
