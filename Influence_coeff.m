@@ -40,7 +40,23 @@ end
         At=-Bn;
         Bt=An;
     end
+
+
+case 'wake'
+    
+    for i=1:n1
+        for k=1:n_coll
+            
+            [a,b]=sourcefish(vortic(i,1),vortic(i,2),xmain(k),zmain(it,k),xmain(k+1),zmain(it,k+1),0,theta(it,k));
+            An(i,k)=a;             
+            Bn(i,k)=-b;
+            
+        end
+        At=-Bn;
+        Bt=An;
+    end
 end
+
     
         
 end

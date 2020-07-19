@@ -42,17 +42,7 @@ tau=zeros(n,1);
 %locomotion in x
 sx=-u_inf*t;
 num_iters=10;
-%start time iteration
-for it=1:n
-  
-%A=zeros(n_coll);
-%B_bound=zeros(n_coll);
-%B_sheet=zeros(n_coll,1);
-%Wake=zeros(n_coll,1);
-
-%setup attached wake panel parameters for first timestep
-if it==1
-    %for 1st iteration
+%initial parameters of attached sheet
 u_wake=u0;
 v_wake=vmain(1,1);
 tan_trail=u_wake/v_wake;
@@ -64,19 +54,27 @@ xmid=(xpanel(1)+xpanel(2))/2;
 zpanel1=zmain(it,1);
 zpanel2=zmain(it,1)+delta*tan_trail/(1+tan_trail^2);
 zmid=(zpanel(1)+zpanel(2))/2;
-    
 
-    
+
+%start time iteration
+for it=1:n
+for iter=1:num_iters  
+%A=zeros(n_coll);
+%B_bound=zeros(n_coll);
+%B_sheet=zeros(n_coll,1);
+%Wake=zeros(n_coll,1);
+
+%setup attached wake panel parameters for first timestep
+if it==1
+    %for 1st iteration    
 else
     
-    for iter=1:num_iters 
-        
     it1=it-1;
                                                      
 %wake influence on collocation pts
 [C_n,C_t] = C_matrix(n_coll,it1,vortic,xcoll,zcoll,theta,tau,it);
 %attached wake panel influence on collocation pts
-[B_sheetn,B_sheett] = Sheet_Infuence(xcoll,zcoll,xpanel1,zpanel1,xpanel2,zpanel2,theta,theta_trail,n_coll,it);
+[B_sheetn,B_sheett] = Sheet_Infuence(xcoll,zcoll,xpanel1,zpanel1,xpanel2,zpanel2,theta,theta_trail,n_coll);
 %freestream influence on collocation pts
 V_stream_n = u_inf*enx(it,:)+vcoll(it,:).*eny(it,:);   
 V_stream_t = u_inf*eny(it,:)-vcoll(it,:).*enx(it,:);
@@ -125,10 +123,23 @@ end
         zmid=(zpanel(1)+zpanel(2))/2;
         
 end
-        
+        tau_sheet=(tau(it-1)-tau(it))/delta;
        %calculate airfoil influence on wake
-        
+        [P_x,P_z,Q_x,Q_z]=Influence_coeff(n_coll,it1,it,vortic(:,1),vortic(:,2),xmain,zmain,theta,'bound');
+        %calculate sheet influence on wake
+        [S_x,S_z]=Sheet_Infuence(vortic(:,1),vortic(:,2),xpanel1,zpanel1,xpanel2,zpanel2,theta,theta_trail,it1,it,'wake');
+        ucore=P_x*q+tau(it)*sum(Q_x,2)/p(it)+tau_sheet*S_x;
+        vcore=P_z*q+tau(it)*sum(Q_z,2)/p(it)+tau_sheet*S_z;
+        %calculate wake-wake influence
+        [W_x,W_y]=C_matrix(it1,it1,vortic,vortic(:,1),vortic(:,2),0,tau,it,'wake');
+        %update total wake speed
+        ucore=ucore+W_x+u_inf;
+        vcore=vcore+W_y;
+        %update position
+        vortic(1:it1,1)=vortic(1:it1,1)+ucore*dt;
+        vortic(1:it1,2)=vortic(1:it1,2)+vcore*dt;
 end 
+
 
 
         
