@@ -11,7 +11,7 @@ Ab2=[An rhs2];
          end
          sol1=zeros(n_coll,1);
          sol2=sol1;
-         for i=num+1:-1:1
+         for i=n_coll:-1:1
              sol1(i)= (Ab1(i,end)-Ab1(i,i+1:n_coll)*sol1(i+1:n_coll))/Ab1(i,i);
              sol2(i)= (Ab2(i,end)-Ab2(i,i+1:n_coll)*sol2(i+1:n_coll))/Ab2(i,i);
          end

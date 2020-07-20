@@ -1,4 +1,4 @@
-function [C_n,C_t] = C_matrix(n1,it1,vortic,x,z,theta,tau,it)
+function [C_n,C_t] = C_matrix(n1,it1,vortic,x,z,theta,tau,it,panel_type)
 C_n=zeros(n1,1);
 C_t=C_n;
 %to find downwash and total circulation due to n-1 vortexes 
@@ -9,10 +9,14 @@ switch panel_type
         
              for i_coll=1:n1
                  for j = 1:it1
-                     
+                 if j==1
+                     circ=0;
+                 else
+                     circ=tau(j-1);
+                 end
                  [Normal,Tang]=wake_influence(vortic(j,1),vortic(j,2),x(i_coll),z(it,i_coll),theta(it,i_coll));
-                 C_n(i_coll)=C_n(i_coll)+Normal*(tau(j-1)-tau(j));
-                 C_t(i_coll)=C_t(i_coll)+Tang*(tau(j-1)-tau(j));
+                 C_n(i_coll)=C_n(i_coll)+Normal*(circ-tau(j));
+                 C_t(i_coll)=C_t(i_coll)+Tang*(circ-tau(j));
                      
                  end
              end
@@ -28,6 +32,22 @@ switch panel_type
                      end 
                  end
         end
+        
+        case'sheet'
+        
+             for i_coll=1:n1
+                 for j = 1:it1
+                 if j==1
+                     circ=0;
+                 else
+                     circ=tau(j-1);
+                 end
+                 [Normal,Tang]=wake_influence(vortic(j,1),vortic(j,2),x,z,0);
+                 C_n(i_coll)=C_n(i_coll)+Normal*(circ-tau(j));
+                 C_t(i_coll)=C_t(i_coll)+Tang*(circ-tau(j));
+                     
+                 end
+             end
 end
         
 end
